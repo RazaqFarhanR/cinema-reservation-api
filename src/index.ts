@@ -12,6 +12,10 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
+app.get("/api/hello", (req, res) => {
+    res.send("Hello World");
+  });
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
