@@ -13,3 +13,129 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Employees {
+  id       String  @id @default(cuid())
+  name     String
+  username String
+  password String
+  role     Role
+}
+
+model Customers {
+  id       String  @id @default(cuid())
+  name     String
+  phone    String
+  email    String
+  password String
+}
+
+model Movies {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  duration    Int
+  poster_url  String
+}
+
+model Theaters {
+  id          String @id @default(cuid())
+  name        String
+  total_seats String
+}
+
+model Seats {
+  id          String @id @default(cuid())
+  theater_id  String
+  seat_number String
+
+  theater     Theaters @relation(fields: [theater_id], references: [id])
+}
+
+model Schedules {
+  id         String  @id @default(cuid())
+  movie_id   String
+  theater_id String
+  show_time  DateTime
+  price      Decimal
+  status     ScheduleStatus
+
+  movie      Movies   @relation(fields: [movie_id], references: [id])
+  theater    Theaters @relation(fields: [theater_id], references: [id])
+}
+
+model Reservations {
+  id           String   @id @default(cuid())
+  customer_id  String
+  schedule_id  String
+  time         DateTime
+  total_price  Decimal
+
+  customer     Customers @relation(fields: [customer_id], references: [id])
+  schedule     Schedules @relation(fields: [schedule_id], references: [id])
+}
+
+model Payments {
+  id            String  @id @default(cuid())
+  reservation_id String
+  method        PaymentMethod
+  status        PaymentStatus
+  proof_url     String
+  verified_by   String?
+
+  reservation   Reservations @relation(fields: [reservation_id], references: [id])
+  verifiedBy    Employees?   @relation(fields: [verified_by], references: [id])
+}
+
+model ReservationSeats {
+  id            String @id @default(cuid())
+  reservation_id String
+  seat_id       String
+
+  reservation   Reservations @relation(fields: [reservation_id], references: [id])
+  seat          Seats        @relation(fields: [seat_id], references: [id])
+}
+
+model FnbItems {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  price       Decimal
+  image_url   String
+  available   Boolean
+}
+
+model ReservationFnbItems {
+  id            String @id @default(cuid())
+  reservation_id String
+  fnb_item_id   String
+  qty           Int
+  subtotal      String
+
+  reservation   Reservations @relation(fields: [reservation_id], references: [id])
+  fnbItem       FnbItems      @relation(fields: [fnb_item_id], references: [id])
+}
+
+enum Role {
+  super
+  admin
+  manager
+  cashier
+  staff
+}
+
+enum ScheduleStatus {
+  active
+  archived
+}
+
+enum PaymentMethod {
+  pay_at_counter
+  bank_transfer
+}
+
+enum PaymentStatus {
+  unpaid
+  paid
+  pending_verification
+}
