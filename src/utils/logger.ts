@@ -14,6 +14,11 @@ const transports = [
       logFormat
     ),
   }),
+  new winston.transports.File({
+    filename: 'logs/app.log',
+    level: 'info',
+    format: logFormat,
+  }),
 ];
 
 if (process.env.NODE_ENV === 'production') {
